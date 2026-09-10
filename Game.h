@@ -35,15 +35,20 @@ private:
     sf::RectangleShape startButton;
     sf::Text startText;
 
-    // Playing 화면 영역
+    // Playing 화면
     sf::RectangleShape mapArea;
     sf::RectangleShape uiArea;
 
     // 승자 정보
     int winner;
 
-    // GameOver 화면
-    sf::Text gameOverText;
+    // GameOver 화면 배경
+    sf::Texture resultBackgroundTexture;
+    sf::Sprite resultBackground;
+
+    // 결과 화면 반투명 패널
+    sf::RectangleShape resultPanel;
+
     sf::Text winnerText;
 
     sf::RectangleShape restartButton;
@@ -58,8 +63,13 @@ private:
     void resetGame();
     void setWinner(int playerNumber);
 
-    void centerTextOnButton(sf::Text& text, const sf::RectangleShape& button);
-    void centerTextX(sf::Text& text, float y);
+    void centerTextOnButton(
+        sf::Text& text,
+        const sf::RectangleShape& button);
+
+    void centerTextX(
+        sf::Text& text,
+        float y);
 
 public:
     Game();
