@@ -2,6 +2,7 @@
 
 #include <SFML/Graphics.hpp>
 #include "TileMap.h"
+#include "Player.h"
 
 enum class GameState
 {
@@ -38,6 +39,8 @@ private:
 
     // Playing 화면
     TileMap tileMap;
+    Player player1;
+    Player player2;
     sf::RectangleShape uiArea;
 
     // 승자 정보

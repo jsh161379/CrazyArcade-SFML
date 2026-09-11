@@ -164,6 +164,19 @@ Game::Game()
     exitText.setString(L"게임 종료");
     exitText.setCharacterSize(36);
     centerTextOnButton(exitText, exitButton);
+
+    player1.keyUp = Keyboard::Scancode::W;
+    player1.keyDown = Keyboard::Scancode::S;
+    player1.keyLeft = Keyboard::Scancode::A;
+    player1.keyRight = Keyboard::Scancode::D;
+
+    player2.keyUp = Keyboard::Scancode::Up;
+    player2.keyDown = Keyboard::Scancode::Down;
+    player2.keyLeft = Keyboard::Scancode::Left;
+    player2.keyRight = Keyboard::Scancode::Right;
+
+    resetPlayer(player1, 1, 1);
+    resetPlayer(player2, TileMap::Rows - 2, TileMap::Columns - 2);
 }
 
 void Game::run()
@@ -243,9 +256,10 @@ void Game::update(float deltaTime)
             startButton.setFillColor(Color(30, 130, 230));
         }
     }
-    else if (state == GameState::Playing)
+    if (state == GameState::Playing)
     {
-        // 실제 게임 진행
+        updatePlayer(player1, tileMap, deltaTime);
+        updatePlayer(player2, tileMap, deltaTime);
     }
     else if (state == GameState::GameOver)
     {
@@ -287,6 +301,10 @@ void Game::render()
         window.clear();
 
         tileMap.draw(window);
+
+        player1.draw(window);
+        player2.draw(window);
+
         window.draw(uiArea);
     }
     else if (state == GameState::GameOver)
