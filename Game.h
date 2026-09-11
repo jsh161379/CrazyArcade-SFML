@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
+#include "TileMap.h"
 
 enum class GameState
 {
@@ -36,7 +37,7 @@ private:
     sf::Text startText;
 
     // Playing 화면
-    sf::RectangleShape mapArea;
+    TileMap tileMap;
     sf::RectangleShape uiArea;
 
     // 승자 정보

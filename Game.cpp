@@ -117,9 +117,6 @@ Game::Game()
     // -----------------------------
     // Playing 임시 화면
     // -----------------------------
-    mapArea.setSize({ mapWidth, windowHeight });
-    mapArea.setFillColor(Color(80, 180, 220));
-    mapArea.setPosition({ 0.f, 0.f });
 
     uiArea.setSize({ uiWidth, windowHeight });
     uiArea.setFillColor(Color(230, 230, 230));
@@ -288,7 +285,8 @@ void Game::render()
     else if (state == GameState::Playing)
     {
         window.clear();
-        window.draw(mapArea);
+
+        tileMap.draw(window);
         window.draw(uiArea);
     }
     else if (state == GameState::GameOver)
@@ -309,6 +307,7 @@ void Game::render()
 void Game::resetGame()
 {
     winner = 0;
+    tileMap.reset();
     state = GameState::Playing;
 }
 
