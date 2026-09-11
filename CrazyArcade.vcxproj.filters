@@ -33,4 +33,23 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="WaterBalloon.cpp">
+      <Filter>소스 파일</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="assets\water_balloon_animation\water_balloon_sheet_10fps.png">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="assets\water_balloon_animation\water_body.png">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="assets\water_balloon_animation\water_center.png">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="assets\water_balloon_animation\water_end.png">
+      <Filter>리소스 파일</Filter>
+    </Image>
+  </ItemGroup>
 </Project>

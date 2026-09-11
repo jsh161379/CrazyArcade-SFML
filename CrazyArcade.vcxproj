@@ -136,6 +136,16 @@
     <ClInclude Include="Game.h" />
     <ClInclude Include="TileMap.h" />
   </ItemGroup>
+  <ItemGroup>
+    <!-- Game.cpp 등 한 곳에서 include해서 사용하는 단일 파일 모듈 -->
+    <None Include="WaterBalloon.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="assets\water_balloon_animation\water_balloon_sheet_10fps.png" />
+    <Image Include="assets\water_balloon_animation\water_body.png" />
+    <Image Include="assets\water_balloon_animation\water_center.png" />
+    <Image Include="assets\water_balloon_animation\water_end.png" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
