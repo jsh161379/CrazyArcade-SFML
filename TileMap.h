@@ -42,3 +42,4 @@ private:
 
     [[nodiscard]] static bool isSpawnSafeTile(int tileX, int tileY);
 };
+

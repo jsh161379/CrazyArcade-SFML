@@ -1,12 +1,19 @@
-#pragma once
+ï»¿#pragma once
 
 #include <SFML/Graphics.hpp>
-#include "TileMap.h"
+#include <array>
+#include <memory>
+#include "Item.h"
 #include "Player.h"
+#include "TileMap.h"
+#include "UI.h"
+
+class WaterBalloonSystem;
 
 enum class GameState
 {
     Start,
+    CharacterSelect,
     Playing,
     GameOver
 };
@@ -14,11 +21,11 @@ enum class GameState
 class Game
 {
 private:
-    // °ÔÀÓ È­¸é Å©±â
+    // ï¿½ï¿½ï¿½ï¿½ È­ï¿½ï¿½ Å©ï¿½ï¿½
     static constexpr unsigned int WINDOW_WIDTH = 800;
     static constexpr unsigned int WINDOW_HEIGHT = 600;
 
-    // ¸Ê Á¤º¸
+    // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     static constexpr int MAP_COLS = 15;
     static constexpr int MAP_ROWS = 13;
     static constexpr float TILE_SIZE = 40.f;
@@ -29,7 +36,7 @@ private:
 
     sf::Font font;
 
-    // Start È­¸é
+    // Start È­ï¿½ï¿½
     sf::Texture startBackgroundTexture;
     sf::Sprite startBackground;
 
@@ -37,20 +44,40 @@ private:
     sf::RectangleShape startButton;
     sf::Text startText;
 
-    // Playing È­¸é
+    // Character selection screen
+    static constexpr int CharacterCount = 6;
+    std::array<sf::Texture, CharacterCount> characterTextures;
+    int selectedCharacterP1;
+    int selectedCharacterP2;
+    bool player1Confirmed;
+    bool player2Confirmed;
+
+    sf::Text selectTitleText;
+    sf::Text player1HintText;
+    sf::Text player2HintText;
+
+    // Playing È­ï¿½ï¿½
     TileMap tileMap;
+    sf::RectangleShape uiArea;
     Player player1;
     Player player2;
-    sf::RectangleShape uiArea;
+    std::unique_ptr<WaterBalloonSystem> player1Balloons;
+    std::unique_ptr<WaterBalloonSystem> player2Balloons;
 
-    // ½ÂÀÚ Á¤º¸
+    ItemManager itemManager;
+    std::array<ItemStats, 2> itemStats;
+    std::array<float, 2> trappedSeconds{};
+    UI hud;
+    float secondsRemaining;
+
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     int winner;
 
-    // GameOver È­¸é ¹è°æ
+    // GameOver È­ï¿½ï¿½ ï¿½ï¿½ï¿½
     sf::Texture resultBackgroundTexture;
     sf::Sprite resultBackground;
 
-    // °á°ú È­¸é ¹ÝÅõ¸í ÆÐ³Î
+    // ï¿½ï¿½ï¿½ È­ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ð³ï¿½
     sf::RectangleShape resultPanel;
 
     sf::Text winnerText;
@@ -66,6 +93,16 @@ private:
     void render();
     void resetGame();
     void setWinner(int playerNumber);
+    void beginCharacterSelect();
+    void beginPlaying();
+    void renderCharacterSelect();
+    void createWaterBalloonSystems();
+    void placeWaterBalloon(int playerIndex);
+    void updateWaterBalloons(float deltaTime);
+    void updateItems();
+    void syncPlayerStats(int playerIndex);
+    void checkGameResult();
+    [[nodiscard]] sf::FloatRect getPlayerBounds(const Player& player) const;
 
     void centerTextOnButton(
         sf::Text& text,
@@ -77,5 +114,6 @@ private:
 
 public:
     Game();
+    ~Game();
     void run();
 };
