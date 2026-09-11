@@ -1,16 +1,18 @@
 #pragma once
 
-#include <SFML/Graphics/RenderTarget.hpp>
-#include <SFML/System/Vector2.hpp>
-
+#include "TileArt.h"
+#include <SFML/Graphics/Texture.hpp>
 #include <array>
+#include <filesystem>
 #include <optional>
 
-enum class TileType
+// Gameplay rules are independent of the drawing style.
+enum class TileType { Empty, IndestructibleWall, DestructibleBlock };
+
+struct Tile
 {
-    Empty,
-    IndestructibleWall,
-    DestructibleBlock
+    GroundStyle ground = GroundStyle::Grass;
+    ObjectStyle object = ObjectStyle::None;
 };
 
 class TileMap
@@ -18,27 +20,32 @@ class TileMap
 public:
     static constexpr int Columns = 15;
     static constexpr int Rows = 13;
-    static constexpr int TileSize = 40;
-    static constexpr int OriginX = 0;
-    static constexpr int OriginY = 40;
+    static constexpr int TileSize = 56;
+    static constexpr int OriginX = 12;
+    static constexpr int OriginY = 8;
     static constexpr int PixelWidth = Columns * TileSize;
     static constexpr int PixelHeight = Rows * TileSize;
+    static constexpr int SpawnX = 0;
+    static constexpr int SpawnY = 1;
 
-    TileMap();
-
+    explicit TileMap(const std::filesystem::path& assetDirectory = "assets");
     void reset();
     void draw(sf::RenderTarget& target) const;
+    void drawGround(sf::RenderTarget& target) const;
+    void drawObjectRow(sf::RenderTarget& target, int row) const;
 
-    [[nodiscard]] bool isInside(int tileX, int tileY) const;
-    [[nodiscard]] TileType getTile(int tileX, int tileY) const;
-    [[nodiscard]] bool isWalkable(int tileX, int tileY) const;
+    [[nodiscard]] bool isInside(int x, int y) const;
+    [[nodiscard]] TileType getTile(int x, int y) const;
+    [[nodiscard]] ObjectStyle getObject(int x, int y) const;
+    [[nodiscard]] GroundStyle getGround(int x, int y) const;
+    [[nodiscard]] bool isWalkable(int x, int y) const;
     [[nodiscard]] std::optional<sf::Vector2i> worldToTile(sf::Vector2f worldPosition) const;
-
-    bool destroyBlock(int tileX, int tileY);
+    bool destroyBlock(int x, int y);
 
 private:
-    using TileRow = std::array<TileType, Columns>;
-    std::array<TileRow, Rows> m_tiles{};
-
-    [[nodiscard]] static bool isSpawnSafeTile(int tileX, int tileY);
+    std::array<std::array<Tile, Columns>, Rows> m_tiles{};
+    // Textures live as long as the map. Missing PNGs use the code-drawn art.
+    std::array<std::optional<sf::Texture>, 4> m_groundTextures;
+    std::array<std::optional<sf::Texture>, 9> m_objectTextures;
+    void loadTextures(const std::filesystem::path& assetDirectory);
 };
