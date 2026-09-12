@@ -1,4 +1,4 @@
-#include "TileMap.h"
+ï»¿#include "TileMap.h"
 
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
@@ -6,20 +6,20 @@
 
 namespace
 {
-sf::Color getTileColor(TileType type)
-{
-    switch (type)
+    sf::Color getTileColor(TileType type)
     {
-    case TileType::Empty:
-        return sf::Color{78, 144, 82};
-    case TileType::IndestructibleWall:
-        return sf::Color{105, 113, 126};
-    case TileType::DestructibleBlock:
-        return sf::Color{184, 119, 62};
-    }
+        switch (type)
+        {
+        case TileType::Empty:
+            return sf::Color{ 78, 144, 82 };
+        case TileType::IndestructibleWall:
+            return sf::Color{ 105, 113, 126 };
+        case TileType::DestructibleBlock:
+            return sf::Color{ 184, 119, 62 };
+        }
 
-    return sf::Color::Magenta;
-}
+        return sf::Color::Magenta;
+    }
 }
 
 TileMap::TileMap()
@@ -44,25 +44,25 @@ void TileMap::reset()
             const bool isInnerWall =
                 tileX % 2 == 0 && tileY % 2 == 0;
 
-            // °íÁ¤ º®
+            // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½
             if (isBorder || isInnerWall)
             {
                 m_tiles[tileY][tileX] = TileType::IndestructibleWall;
             }
 
-            // ÇÃ·¹ÀÌ¾î ½ÃÀÛ À§Ä¡ ÁÖº¯Àº ºó °ø°£
+            // ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ ï¿½Öºï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             else if (isSpawnSafeTile(tileX, tileY))
             {
                 m_tiles[tileY][tileX] = TileType::Empty;
             }
 
-            // ³ª¸ÓÁö °ø°£¿¡¼­ 50% È®·ü·Î ÆÄ±« °¡´É ºí·Ï »ý¼º
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 50% È®ï¿½ï¿½ï¿½ï¿½ ï¿½Ä±ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             else if (randomPercent(gen) < 50)
             {
                 m_tiles[tileY][tileX] = TileType::DestructibleBlock;
             }
 
-            // ºí·ÏÀÌ »ý¼ºµÇÁö ¾ÊÀ¸¸é ºó °ø°£
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             else
             {
                 m_tiles[tileY][tileX] = TileType::Empty;
@@ -74,7 +74,7 @@ void TileMap::reset()
 void TileMap::draw(sf::RenderTarget& target) const
 {
     sf::RectangleShape tileShape(
-        sf::Vector2f{static_cast<float>(TileSize - 1), static_cast<float>(TileSize - 1)});
+        sf::Vector2f{ static_cast<float>(TileSize - 1), static_cast<float>(TileSize - 1) });
 
     for (int tileY = 0; tileY < Rows; ++tileY)
     {
@@ -82,7 +82,7 @@ void TileMap::draw(sf::RenderTarget& target) const
         {
             tileShape.setPosition(sf::Vector2f{
                 static_cast<float>(OriginX + tileX * TileSize),
-                static_cast<float>(OriginY + tileY * TileSize)});
+                static_cast<float>(OriginY + tileY * TileSize) });
             tileShape.setFillColor(getTileColor(m_tiles[tileY][tileX]));
             target.draw(tileShape);
         }
@@ -119,7 +119,7 @@ std::optional<sf::Vector2i> TileMap::worldToTile(sf::Vector2f worldPosition) con
 
     return sf::Vector2i{
         static_cast<int>(localX) / TileSize,
-        static_cast<int>(localY) / TileSize};
+        static_cast<int>(localY) / TileSize };
 }
 
 bool TileMap::destroyBlock(int tileX, int tileY)

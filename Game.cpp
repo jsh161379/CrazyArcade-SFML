@@ -1,4 +1,4 @@
-#include "Game.h"
+Ôªø#include "Game.h"
 #include "WaterBalloon.cpp"
 #include <algorithm>
 #include <iostream>
@@ -29,7 +29,7 @@ Game::Game()
     window.setFramerateLimit(60);
 
     // -----------------------------
-    // ∆˘∆Æ
+    // Ìè∞Ìä∏
     // -----------------------------
     if (!font.openFromFile("assets/fonts/neodgm.ttf"))
     {
@@ -73,20 +73,20 @@ Game::Game()
     player2HintText.setPosition({ 395.f, 410.f });
 
     // -----------------------------
-    // √¢ ≈©±‚
+    // Ï∞Ω ÌÅ¨Í∏∞
     // -----------------------------
     float windowWidth = static_cast<float>(WINDOW_WIDTH);
     float windowHeight = static_cast<float>(WINDOW_HEIGHT);
 
     // -----------------------------
-    // Ω«¡¶ ∏  ≈©±‚
+    // Ïã§Ï†ú Îßµ ÌÅ¨Í∏∞
     // -----------------------------
     float mapWidth = MAP_COLS * TILE_SIZE;
     float mapHeight = MAP_ROWS * TILE_SIZE;
     float uiWidth = windowWidth - mapWidth;
 
     // -----------------------------
-    // Ω√¿€ »≠∏È πË∞Ê
+    // ÏãúÏûë ÌôîÎ©¥ Î∞∞Í≤Ω
     // -----------------------------
     if (!startBackgroundTexture.loadFromFile("assets/images/start_background.png"))
     {
@@ -115,7 +115,7 @@ Game::Game()
     }
 
     // -----------------------------
-    // ∞·∞˙ »≠∏È πË∞Ê
+    // Í≤∞Í≥º ÌôîÎ©¥ Î∞∞Í≤Ω
     // -----------------------------
     if (!resultBackgroundTexture.loadFromFile("assets/images/result_background.png"))
     {
@@ -144,7 +144,7 @@ Game::Game()
     }
 
     // -----------------------------
-    // ∞‘¿” Ω√¿€ πˆ∆∞
+    // Í≤åÏûÑ ÏãúÏûë Î≤ÑÌäº
     // -----------------------------
     startButton.setSize({ 240.f, 70.f });
     float startButtonX = (windowWidth - startButton.getSize().x) / 2.f;
@@ -157,12 +157,12 @@ Game::Game()
     startButtonShadow.setPosition({ startButtonX, startButton.getPosition().y + 8.f });
     startButtonShadow.setFillColor(Color(0, 70, 150));
 
-    startText.setString(L"∞‘¿” Ω√¿€");
+    startText.setString(sf::String(U"Í≤åÏûÑ ÏãúÏûë"));
     startText.setCharacterSize(36);
     centerTextOnButton(startText, startButton);
 
     // -----------------------------
-    // Playing ¿”Ω√ »≠∏È
+    // Playing ÏûÑÏãú ÌôîÎ©¥
     // -----------------------------
 
     uiArea.setSize({ uiWidth, windowHeight });
@@ -170,7 +170,7 @@ Game::Game()
     uiArea.setPosition({ mapWidth, 0.f });
 
     // -----------------------------
-    // ∞·∞˙ »≠∏È π›≈ı∏Ì ∆–≥Œ
+    // Í≤∞Í≥º ÌôîÎ©¥ Î∞òÌà¨Î™Ö Ìå®ÎÑê
     // -----------------------------
     resultPanel.setSize({ 300.f, 250.f });
     float resultPanelX = (windowWidth - resultPanel.getSize().x) / 2.f;
@@ -178,14 +178,14 @@ Game::Game()
     resultPanel.setFillColor(Color(0, 0, 0, 140));
 
     // -----------------------------
-    // Ω¬¿⁄ ±€ææ
+    // ÏäπÏûê Í∏ÄÏî®
     // -----------------------------
-    winnerText.setString(L"Ω¬¿⁄ æ¯¿Ω");
+    winnerText.setString(sf::String(U"ÏäπÏûê ÏóÜÏùå"));
     winnerText.setCharacterSize(36);
     centerTextX(winnerText, 315.f);
 
     // -----------------------------
-    // ¥ŸΩ√ Ω√¿€ πˆ∆∞
+    // Îã§Ïãú ÏãúÏûë Î≤ÑÌäº
     // -----------------------------
     restartButton.setSize({ 240.f, 70.f });
     float restartButtonX = (windowWidth - restartButton.getSize().x) / 2.f;
@@ -194,12 +194,12 @@ Game::Game()
     restartButton.setOutlineColor(Color::White);
     restartButton.setOutlineThickness(4.f);
 
-    restartText.setString(L"¥ŸΩ√ Ω√¿€");
+    restartText.setString(sf::String(U"Îã§Ïãú ÏãúÏûë"));
     restartText.setCharacterSize(36);
     centerTextOnButton(restartText, restartButton);
 
     // -----------------------------
-    // ∞‘¿” ¡æ∑· πˆ∆∞
+    // Í≤åÏûÑ Ï¢ÖÎ£å Î≤ÑÌäº
     // -----------------------------
     exitButton.setSize({ 240.f, 70.f });
     float exitButtonX = (windowWidth - exitButton.getSize().x) / 2.f;
@@ -208,7 +208,7 @@ Game::Game()
     exitButton.setOutlineColor(Color::White);
     exitButton.setOutlineThickness(4.f);
 
-    exitText.setString(L"∞‘¿” ¡æ∑·");
+    exitText.setString(sf::String(U"Í≤åÏûÑ Ï¢ÖÎ£å"));
     exitText.setCharacterSize(36);
     centerTextOnButton(exitText, exitButton);
 
@@ -452,10 +452,10 @@ void Game::render()
         if (player2Balloons)
             player2Balloons->drawExplosions(window);
 
-        const array<PlayerHudData, 2> players = {{
+        const array<PlayerHudData, 2> players = { {
             { itemStats[0], player1.alive, player1.trapped },
             { itemStats[1], player2.alive, player2.trapped }
-        }};
+        } };
         hud.draw(window, players, secondsRemaining, "P1 SPACE/F   P2 ENTER/RCTRL");
     }
     else if (state == GameState::GameOver)
@@ -510,17 +510,17 @@ void Game::beginPlaying()
 void Game::createWaterBalloonSystems()
 {
     auto createSystem = []()
-    {
-        return make_unique<WaterBalloonSystem>(
-            "assets/water_balloon_animation/water_balloon_sheet_10fps.png",
-            "assets/water_balloon_animation/water_center.png",
-            "assets/water_balloon_animation/water_body.png",
-            "assets/water_balloon_animation/water_end.png",
-            static_cast<float>(TileMap::TileSize),
-            TileMap::Columns,
-            TileMap::Rows,
-            Vector2f(static_cast<float>(TileMap::OriginX), static_cast<float>(TileMap::OriginY)));
-    };
+        {
+            return make_unique<WaterBalloonSystem>(
+                "assets/water_balloon_animation/water_balloon_sheet_10fps.png",
+                "assets/water_balloon_animation/water_center.png",
+                "assets/water_balloon_animation/water_body.png",
+                "assets/water_balloon_animation/water_end.png",
+                static_cast<float>(TileMap::TileSize),
+                TileMap::Columns,
+                TileMap::Rows,
+                Vector2f(static_cast<float>(TileMap::OriginX), static_cast<float>(TileMap::OriginY)));
+        };
 
     player1Balloons = createSystem();
     player2Balloons = createSystem();
@@ -544,21 +544,21 @@ void Game::placeWaterBalloon(int playerIndex)
 void Game::updateWaterBalloons(float deltaTime)
 {
     auto isBlocked = [this](Vector2i tile)
-    {
-        return tileMap.getTile(tile.x, tile.y) != TileType::Empty;
-    };
+        {
+            return tileMap.getTile(tile.x, tile.y) != TileType::Empty;
+        };
 
     auto handleExplosionTile = [this](Vector2i tile)
-    {
-        if (!tileMap.destroyBlock(tile.x, tile.y))
-            return;
+        {
+            if (!tileMap.destroyBlock(tile.x, tile.y))
+                return;
 
-        const Vector2f center = {
-            static_cast<float>(TileMap::OriginX) + (static_cast<float>(tile.x) + 0.5f) * TileMap::TileSize,
-            static_cast<float>(TileMap::OriginY) + (static_cast<float>(tile.y) + 0.5f) * TileMap::TileSize
+            const Vector2f center = {
+                static_cast<float>(TileMap::OriginX) + (static_cast<float>(tile.x) + 0.5f) * TileMap::TileSize,
+                static_cast<float>(TileMap::OriginY) + (static_cast<float>(tile.y) + 0.5f) * TileMap::TileSize
+            };
+            itemManager.trySpawn(center, 0.3f, 28.f);
         };
-        itemManager.trySpawn(center, 0.3f, 28.f);
-    };
 
     if (player1Balloons)
         player1Balloons->update(deltaTime, isBlocked, handleExplosionTile);
@@ -680,22 +680,22 @@ void Game::renderCharacterSelect()
     window.draw(characterPanel);
 
     auto drawMarker = [this](const string& label, float x, float y, const Color& color)
-    {
-        RectangleShape marker({ 38.f, 22.f });
-        marker.setOrigin({ 19.f, 11.f });
-        marker.setPosition({ x, y });
-        marker.setFillColor(color);
-        window.draw(marker);
+        {
+            RectangleShape marker({ 38.f, 22.f });
+            marker.setOrigin({ 19.f, 11.f });
+            marker.setPosition({ x, y });
+            marker.setFillColor(color);
+            window.draw(marker);
 
-        Text markerText(font, label, 13);
-        markerText.setStyle(Text::Bold);
-        markerText.setFillColor(Color::White);
-        const FloatRect bounds = markerText.getLocalBounds();
-        markerText.setPosition({
-            x - bounds.position.x - bounds.size.x / 2.f,
-            y - bounds.position.y - bounds.size.y / 2.f - 1.f });
-        window.draw(markerText);
-    };
+            Text markerText(font, label, 13);
+            markerText.setStyle(Text::Bold);
+            markerText.setFillColor(Color::White);
+            const FloatRect bounds = markerText.getLocalBounds();
+            markerText.setPosition({
+                x - bounds.position.x - bounds.size.x / 2.f,
+                y - bounds.position.y - bounds.size.y / 2.f - 1.f });
+            window.draw(markerText);
+        };
 
     constexpr float cardStartX = 135.f;
     constexpr float cardGap = 106.f;
@@ -824,41 +824,41 @@ void Game::renderCharacterSelect()
     }
 
     auto drawPlayerPanel = [this](bool firstPlayer, bool confirmed)
-    {
-        const float x = firstPlayer ? 55.f : 420.f;
-        const Color normalColor = firstPlayer ? Color(220, 60, 75) : Color(65, 135, 245);
-        const Color readyColor(65, 210, 115);
-        RectangleShape panel({ 325.f, 115.f });
-        panel.setPosition({ x, 410.f });
-        panel.setFillColor(firstPlayer ? Color(48, 29, 40) : Color(27, 38, 61));
-        panel.setOutlineThickness(2.f);
-        panel.setOutlineColor(confirmed ? readyColor : normalColor);
-        window.draw(panel);
+        {
+            const float x = firstPlayer ? 55.f : 420.f;
+            const Color normalColor = firstPlayer ? Color(220, 60, 75) : Color(65, 135, 245);
+            const Color readyColor(65, 210, 115);
+            RectangleShape panel({ 325.f, 115.f });
+            panel.setPosition({ x, 410.f });
+            panel.setFillColor(firstPlayer ? Color(48, 29, 40) : Color(27, 38, 61));
+            panel.setOutlineThickness(2.f);
+            panel.setOutlineColor(confirmed ? readyColor : normalColor);
+            window.draw(panel);
 
-        Text title(font, confirmed ? (firstPlayer ? "P1  READY!" : "P2  READY!")
-                                   : (firstPlayer ? "PLAYER 1" : "PLAYER 2"), 19);
-        title.setStyle(Text::Bold);
-        title.setFillColor(confirmed ? Color(90, 235, 135)
-                                     : (firstPlayer ? Color(255, 90, 100) : Color(80, 155, 255)));
-        title.setPosition({ x + 22.f, 427.f });
-        window.draw(title);
+            Text title(font, confirmed ? (firstPlayer ? "P1  READY!" : "P2  READY!")
+                : (firstPlayer ? "PLAYER 1" : "PLAYER 2"), 19);
+            title.setStyle(Text::Bold);
+            title.setFillColor(confirmed ? Color(90, 235, 135)
+                : (firstPlayer ? Color(255, 90, 100) : Color(80, 155, 255)));
+            title.setPosition({ x + 22.f, 427.f });
+            window.draw(title);
 
-        const sf::String selectMessage = firstPlayer
-            ? sf::String(U"A / D  \uce90\ub9ad\ud130 \uc120\ud0dd")
-            : sf::String(U"LEFT / RIGHT  \uce90\ub9ad\ud130 \uc120\ud0dd");
-        Text controls(font, selectMessage, 15);
-        controls.setFillColor(Color(220, 220, 232));
-        controls.setPosition({ x + 22.f, 460.f });
-        window.draw(controls);
+            const sf::String selectMessage = firstPlayer
+                ? sf::String(U"A / D  \uce90\ub9ad\ud130 \uc120\ud0dd")
+                : sf::String(U"LEFT / RIGHT  \uce90\ub9ad\ud130 \uc120\ud0dd");
+            Text controls(font, selectMessage, 15);
+            controls.setFillColor(Color(220, 220, 232));
+            controls.setPosition({ x + 22.f, 460.f });
+            window.draw(controls);
 
-        const sf::String confirmMessage = firstPlayer
-            ? sf::String(U"SPACE  \uc120\ud0dd \uc644\ub8cc   /   Q  \ucde8\uc18c")
-            : sf::String(U"ENTER  \uc120\ud0dd \uc644\ub8cc   /   RSHIFT  \ucde8\uc18c");
-        Text confirmText(font, confirmMessage, 14);
-        confirmText.setFillColor(Color(165, 167, 190));
-        confirmText.setPosition({ x + 22.f, 487.f });
-        window.draw(confirmText);
-    };
+            const sf::String confirmMessage = firstPlayer
+                ? sf::String(U"SPACE  \uc120\ud0dd \uc644\ub8cc   /   Q  \ucde8\uc18c")
+                : sf::String(U"ENTER  \uc120\ud0dd \uc644\ub8cc   /   RSHIFT  \ucde8\uc18c");
+            Text confirmText(font, confirmMessage, 14);
+            confirmText.setFillColor(Color(165, 167, 190));
+            confirmText.setPosition({ x + 22.f, 487.f });
+            window.draw(confirmText);
+        };
 
     drawPlayerPanel(true, player1Confirmed);
     drawPlayerPanel(false, player2Confirmed);
@@ -894,15 +894,15 @@ void Game::setWinner(int playerNumber)
 
     if (winner == 1)
     {
-        winnerText.setString(L"1P Ω¬∏Æ!");
+        winnerText.setString(sf::String(U"1P ÏäπÎ¶¨!"));
     }
     else if (winner == 2)
     {
-        winnerText.setString(L"2P Ω¬∏Æ!");
+        winnerText.setString(sf::String(U"2P ÏäπÎ¶¨!"));
     }
     else
     {
-        winnerText.setString(L"Ω¬¿⁄ æ¯¿Ω");
+        winnerText.setString(sf::String(U"ÏäπÏûê ÏóÜÏùå"));
     }
 
     centerTextX(winnerText, 315.f);

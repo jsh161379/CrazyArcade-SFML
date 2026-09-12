@@ -21,11 +21,11 @@ enum class GameState
 class Game
 {
 private:
-    // ���� ȭ�� ũ��
+    // 게임 화면 크기
     static constexpr unsigned int WINDOW_WIDTH = 800;
     static constexpr unsigned int WINDOW_HEIGHT = 600;
 
-    // �� ����
+    // 맵 설정
     static constexpr int MAP_COLS = 15;
     static constexpr int MAP_ROWS = 13;
     static constexpr float TILE_SIZE = 40.f;
@@ -36,7 +36,7 @@ private:
 
     sf::Font font;
 
-    // Start ȭ��
+    // 시작 화면
     sf::Texture startBackgroundTexture;
     sf::Sprite startBackground;
 
@@ -44,7 +44,7 @@ private:
     sf::RectangleShape startButton;
     sf::Text startText;
 
-    // Character selection screen
+    // 캐릭터 선택 화면
     static constexpr int CharacterCount = 6;
     std::array<sf::Texture, CharacterCount> characterTextures;
     int selectedCharacterP1;
@@ -56,7 +56,7 @@ private:
     sf::Text player1HintText;
     sf::Text player2HintText;
 
-    // Playing ȭ��
+    // 게임 진행 화면
     TileMap tileMap;
     sf::RectangleShape uiArea;
     Player player1;
@@ -70,14 +70,14 @@ private:
     UI hud;
     float secondsRemaining;
 
-    // ���� ����
+    // 승자 정보
     int winner;
 
-    // GameOver ȭ�� ���
+    // 게임 종료 화면 배경
     sf::Texture resultBackgroundTexture;
     sf::Sprite resultBackground;
 
-    // ��� ȭ�� ������ �г�
+    // 결과 화면 반투명 패널
     sf::RectangleShape resultPanel;
 
     sf::Text winnerText;

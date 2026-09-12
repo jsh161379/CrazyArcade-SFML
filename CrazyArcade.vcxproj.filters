@@ -33,6 +33,9 @@
     <ClCompile Include="UI.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="TileArt.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
@@ -50,8 +53,12 @@
     <ClInclude Include="UI.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="TileArt.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="WaterBalloon.cpp" />
+    <None Include=".editorconfig" />
   </ItemGroup>
 </Project>
