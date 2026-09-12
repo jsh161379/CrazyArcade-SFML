@@ -1,147 +1,54 @@
 ﻿#pragma once
-
 #include <SFML/Graphics.hpp>
 #include <string>
-
+#include <functional>
 class TileMap;
 
-
-// ============================================================
-// Sprite Sheet 설정
-// ============================================================
-
-constexpr int FRAME_W = 313;
-constexpr int FRAME_H = 313;
-constexpr int FRAME_COUNT = 4;
-
-
-// ============================================================
-// Player
-// ============================================================
+constexpr int PlayerFrameCount = 4;
 
 struct Player
 {
-    // --------------------------------------------------------
-    // 타일 위치
-    // row = y
-    // col = x
-    // --------------------------------------------------------
-
     int row = 1;
     int col = 1;
-
     int targetRow = 1;
     int targetCol = 1;
 
-
-    // --------------------------------------------------------
-    // 이동
-    // --------------------------------------------------------
-
     bool moving = false;
-
-    // 현재 타일 -> 목표 타일 진행도
-    // 0.0 ~ 1.0
     float progress = 0.f;
-
-    // 초당 이동 타일 수
     float speed = 4.f;
-
-
-    // --------------------------------------------------------
-    // 상태
-    // --------------------------------------------------------
 
     bool alive = true;
     bool trapped = false;
+    float trappedAnimTimer = 0.f;
 
-
-    // --------------------------------------------------------
-    // 능력치
-    // --------------------------------------------------------
+    static constexpr float TrapDuration = 5.f;
 
     int bombCapacity = 1;
     int blastRange = 1;
     int needles = 0;
 
-
-    // --------------------------------------------------------
-    // 애니메이션
-    // --------------------------------------------------------
-
     std::string dir = "down";
-
     int currentFrame = 0;
-
     float animTimer = 0.f;
     float animSpeed = 0.12f;
 
-
-    // --------------------------------------------------------
-    // 조작키
-    // --------------------------------------------------------
-
-    sf::Keyboard::Scancode keyUp{};
-    sf::Keyboard::Scancode keyDown{};
-    sf::Keyboard::Scancode keyLeft{};
-    sf::Keyboard::Scancode keyRight{};
-
-
-    // --------------------------------------------------------
-    // 캐릭터 이미지
-    // --------------------------------------------------------
+    sf::Keyboard::Scancode keyUp = sf::Keyboard::Scancode::Unknown;
+    sf::Keyboard::Scancode keyDown = sf::Keyboard::Scancode::Unknown;
+    sf::Keyboard::Scancode keyLeft = sf::Keyboard::Scancode::Unknown;
+    sf::Keyboard::Scancode keyRight = sf::Keyboard::Scancode::Unknown;
 
     sf::Texture texture;
-
     bool textureLoaded = false;
-
     float drawSize = 36.f;
 
-
-    // --------------------------------------------------------
-    // Texture 로드
-    // --------------------------------------------------------
-
     bool loadTexture(const std::string& path);
-
-
-    // --------------------------------------------------------
-    // 화면 출력
-    // --------------------------------------------------------
-
     void draw(sf::RenderWindow& window) const;
 };
 
-
-// ============================================================
-// 함수
-// ============================================================
-
 int dirRow(const std::string& dir);
-
-
-void updatePlayer(
-    Player& p,
-    const TileMap& map,
-    float dt
-);
-
-
-sf::Vector2f getRenderPos(
-    const Player& p
-);
-
-
-sf::Vector2i getTilePosition(
-    const Player& p
-);
-
-
-void killPlayer(
-    Player& p
-);
-
-
-bool isAlive(
-    const Player& p
-);
+void resetPlayer(Player& player, int row, int col);
+void updatePlayer(Player& player, const TileMap& map, float deltaTime, const std::function<bool(sf::Vector2i)>& isBalloonAt = {});
+sf::Vector2f getRenderPos(const Player& player);
+sf::Vector2i getTilePosition(const Player& player);
+void killPlayer(Player& player);
+bool isAlive(const Player& player);
