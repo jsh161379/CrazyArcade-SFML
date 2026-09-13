@@ -41,7 +41,36 @@ bool Player::loadTexture(const std::string& path)
 
     return textureLoaded;
 }
+static sf::Color getPlayerColor(const Player& player)
+{
+    if (player.playerNumber == 1) return sf::Color(255, 70, 80, 210);
+    return sf::Color(70, 140, 255, 210);
+}
 
+static void drawPlayerIndicator(const Player& player, sf::RenderWindow& window)
+{
+    sf::Vector2f pos = getRenderPos(player);
+    sf::Color color = getPlayerColor(player);
+
+    sf::CircleShape ground(13.f);
+    ground.setOrigin({ 13.f,13.f });
+    ground.setScale({ 1.f,0.35f });
+    ground.setPosition({ pos.x,pos.y + 16.f });
+    ground.setFillColor(sf::Color(color.r, color.g, color.b, 65));
+    ground.setOutlineThickness(2.f);
+    ground.setOutlineColor(sf::Color(color.r, color.g, color.b, 180));
+    window.draw(ground);
+
+    sf::ConvexShape arrow;
+    arrow.setPointCount(3);
+    arrow.setPoint(0, { 0.f,0.f });
+    arrow.setPoint(1, { 10.f,0.f });
+    arrow.setPoint(2, { 5.f,7.f });
+    arrow.setOrigin({ 5.f,3.5f });
+    arrow.setPosition({ pos.x,pos.y - 27.f });
+    arrow.setFillColor(color);
+    window.draw(arrow);
+}
 static void drawNormalPlayer(const Player& player, sf::RenderWindow& window)
 {
     const sf::Vector2u textureSize = player.texture.getSize();
@@ -59,6 +88,7 @@ static void drawNormalPlayer(const Player& player, sf::RenderWindow& window)
     float scale = player.drawSize / static_cast<float>(frameHeight);
     sprite.setScale({ scale,scale });
     sprite.setPosition(getRenderPos(player));
+    drawPlayerIndicator(player, window);
     window.draw(sprite);
 }
 
@@ -157,6 +187,7 @@ static void drawTrappedPlayer(const Player& player, sf::RenderWindow& window)
 
     sprite.setScale({ scale,scale });
     sprite.setPosition(pos);
+    drawPlayerIndicator(player, window);
     window.draw(sprite);
 }
 
@@ -252,7 +283,48 @@ static void drawBubbleFront(const Player& player, sf::RenderWindow& window)
 
 void Player::draw(sf::RenderWindow& window) const
 {
-    if (!textureLoaded || !alive) return;
+    if (!textureLoaded) return;
+
+    if (trapBursting)
+    {
+        sf::Vector2f pos = getRenderPos(*this);
+        float t = trapBurstTimer / TrapBurstDuration;
+        if (t > 1.f) t = 1.f;
+
+        float radius = 20.f + 30.f * t;
+        int alpha = static_cast<int>(220.f * (1.f - t));
+
+        sf::CircleShape burst(radius);
+        burst.setOrigin({ radius,radius });
+        burst.setPosition(pos);
+        burst.setFillColor(sf::Color(80, 200, 255, static_cast<unsigned char>(alpha)));
+        burst.setOutlineThickness(3.f);
+        burst.setOutlineColor(sf::Color(220, 250, 255, static_cast<unsigned char>(alpha)));
+        window.draw(burst);
+
+        for (int i = 0; i < 8; i++)
+        {
+            float angle = static_cast<float>(i) * 3.141592f / 4.f;
+            float distance = 10.f + 30.f * t;
+            float r = 4.f * (1.f - t) + 1.f;
+
+            sf::CircleShape drop(r);
+            drop.setOrigin({ r,r });
+            drop.setPosition({
+                pos.x + std::cos(angle) * distance,
+                pos.y + std::sin(angle) * distance
+                });
+            drop.setFillColor(sf::Color(100, 210, 255, static_cast<unsigned char>(alpha)));
+            window.draw(drop);
+        }
+        return;
+    }
+
+    if (!alive)
+    {
+        drawTrappedPlayer(*this, window);
+        return;
+    }
 
     if (!trapped)
     {
@@ -282,18 +354,20 @@ void resetPlayer(Player& player, int row, int col)
     player.dir = "down";
     player.currentFrame = 0;
     player.animTimer = 0.f;
+
+    player.trapBursting = false;
+    player.trapBurstTimer = 0.f;
 }
 
-void updatePlayer(Player& player, const TileMap& map, float deltaTime, const std::function<bool(sf::Vector2i)>& isBalloonAt)
+void updatePlayer(Player& player, TileMap& map, float deltaTime, const std::function<bool(sf::Vector2i)>& isBalloonAt)
 {
     if (!player.alive)
     {
         player.moving = false;
-        player.currentFrame = 0;
+        player.currentFrame = 2;
         player.animTimer = 0.f;
         return;
     }
-
     if (player.trapped)
     {
         player.moving = false;
@@ -381,7 +455,19 @@ void updatePlayer(Player& player, const TileMap& map, float deltaTime, const std
     bool balloonBlocked = false;
     if (isBalloonAt) balloonBlocked = isBalloonAt(nextTile);
 
-    if (map.isWalkable(nextColumn, nextRow) && !balloonBlocked)
+    TileType nextType = map.getTile(nextColumn, nextRow);
+    bool canMove = false;
+
+    if (nextType == TileType::Empty || nextType == TileType::HideableBush)
+    {
+        canMove = true;
+    }
+    else if (nextType == TileType::PushableCrate)
+    {
+        canMove = map.tryPushCrate(nextColumn, nextRow, deltaColumn, deltaRow);
+    }
+
+    if (canMove && !balloonBlocked)
     {
         player.targetCol = nextColumn;
         player.targetRow = nextRow;
@@ -420,12 +506,14 @@ void killPlayer(Player& player)
     player.trapped = false;
     player.moving = false;
     player.progress = 0.f;
-    player.trappedAnimTimer = 0.f;
-    player.currentFrame = 0;
+    player.trappedAnimTimer = Player::TrapDuration;
+    player.currentFrame = 2;
     player.animTimer = 0.f;
+    player.trapBursting = false;
+    player.trapBurstTimer = 0.f;
 }
-
 bool isAlive(const Player& player)
 {
     return player.alive;
 }
+

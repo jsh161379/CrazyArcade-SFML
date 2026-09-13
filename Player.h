@@ -8,6 +8,8 @@ constexpr int PlayerFrameCount = 4;
 
 struct Player
 {
+    int playerNumber = 1;
+
     int row = 1;
     int col = 1;
     int targetRow = 1;
@@ -43,11 +45,15 @@ struct Player
 
     bool loadTexture(const std::string& path);
     void draw(sf::RenderWindow& window) const;
+
+    bool trapBursting = false;
+    float trapBurstTimer = 0.f;
+    static constexpr float TrapBurstDuration = 0.35f;
 };
 
 int dirRow(const std::string& dir);
 void resetPlayer(Player& player, int row, int col);
-void updatePlayer(Player& player, const TileMap& map, float deltaTime, const std::function<bool(sf::Vector2i)>& isBalloonAt = {});
+void updatePlayer(Player& player, TileMap& map, float deltaTime, const std::function<bool(sf::Vector2i)>& isBalloonAt = {});
 sf::Vector2f getRenderPos(const Player& player);
 sf::Vector2i getTilePosition(const Player& player);
 void killPlayer(Player& player);
