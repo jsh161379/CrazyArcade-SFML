@@ -51,6 +51,7 @@ private:
     // 캐릭터 선택 화면
     static constexpr int CharacterCount = 6;
     std::array<sf::Texture, CharacterCount> characterTextures;
+    std::array<sf::Texture, CharacterCount> secondPlayerCharacterTextures;
     int selectedCharacterP1;
     int selectedCharacterP2;
     bool player1Confirmed;

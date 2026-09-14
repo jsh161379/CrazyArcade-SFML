@@ -68,6 +68,15 @@ public:
         return m_elapsedSeconds >= FuseSeconds;
     }
 
+    bool trigger()
+    {
+        if (isReadyToExplode())
+            return false;
+
+        m_elapsedSeconds = FuseSeconds;
+        return true;
+    }
+
 private:
     static constexpr int AnimationFrameCount = 10;
     static constexpr float SecondsPerFrame = 0.1f; // 초당 10프레임
@@ -191,6 +200,19 @@ public:
         }
 
         return false;
+    }
+
+    // 현재 물줄기에 닿은 대기 중인 물풍선의 타이머를 즉시 끝낸다.
+    // 하나라도 새로 점화했다면 true를 반환한다.
+    bool triggerBalloonsHitBy(const WaterBalloonSystem& source)
+    {
+        bool triggered = false;
+        for (WaterBalloon& balloon : m_balloons)
+        {
+            if (source.hasExplosionAt(balloon.tile()))
+                triggered = balloon.trigger() || triggered;
+        }
+        return triggered;
     }
 
     // 캐릭터의 화면 좌표가 실제 피격 영역 안에 있는지 반환한다.

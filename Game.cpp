@@ -47,6 +47,15 @@ Game::Game()
         {
             cout << path << " load failed!" << endl;
         }
+        else
+        {
+            Image variantImage = characterTextures[index].copyToImage();
+            applySecondPlayerPalette(variantImage, index);
+            if (!secondPlayerCharacterTextures[index].loadFromImage(variantImage))
+                cout << path << " player 2 palette load failed!" << endl;
+            else
+                secondPlayerCharacterTextures[index].setSmooth(false);
+        }
     }
 
     player1.keyUp = Keyboard::Scancode::W;
@@ -359,7 +368,7 @@ void Game::processEvents()
                         syncPlayerStats(0);
                     }
                 }
-                else if (keyPressed->scancode == Keyboard::Scancode::RControl)
+                else if (keyPressed->scancode == Keyboard::Scancode::RShift)
                 {
                     if (tryUseNeedle(itemStats[1], player2.trapped, player2.alive))
                     {
@@ -644,10 +653,12 @@ void Game::beginPlaying()
 {
     const string player1Path = "assets/characters/char" + to_string(selectedCharacterP1 + 1) + ".png";
     const string player2Path = "assets/characters/char" + to_string(selectedCharacterP2 + 1) + ".png";
-    player1.loadTexture(player1Path);
-    player2.loadTexture(player2Path);
     player1.playerNumber = 1;
     player2.playerNumber = 2;
+    player1.characterIndex = selectedCharacterP1;
+    player2.characterIndex = selectedCharacterP2;
+    player1.loadTexture(player1Path);
+    player2.loadTexture(player2Path, selectedCharacterP1 == selectedCharacterP2);
     resetGame();
 }
 
@@ -708,6 +719,35 @@ void Game::updateWaterBalloons(float deltaTime)
         player1Balloons->update(deltaTime, isBlocked, handleExplosionTile);
     if (player2Balloons)
         player2Balloons->update(deltaTime, isBlocked, handleExplosionTile);
+
+    // 새로 생긴 물줄기에 닿은 모든 물풍선을 같은 프레임에 연쇄 폭발시킨다.
+    // 한 번의 반복마다 다음 물풍선까지 물줄기가 이어지므로 설치 가능한
+    // 최대 개수보다 넉넉하게 반복하되, 더 이상 점화되지 않으면 즉시 끝낸다.
+    constexpr int MaxChainReactionSteps = 32;
+    for (int step = 0; step < MaxChainReactionSteps; ++step)
+    {
+        bool triggered = false;
+        if (player1Balloons)
+        {
+            triggered = player1Balloons->triggerBalloonsHitBy(*player1Balloons) || triggered;
+            if (player2Balloons)
+                triggered = player1Balloons->triggerBalloonsHitBy(*player2Balloons) || triggered;
+        }
+        if (player2Balloons)
+        {
+            if (player1Balloons)
+                triggered = player2Balloons->triggerBalloonsHitBy(*player1Balloons) || triggered;
+            triggered = player2Balloons->triggerBalloonsHitBy(*player2Balloons) || triggered;
+        }
+
+        if (!triggered)
+            break;
+
+        if (player1Balloons)
+            player1Balloons->update(0.f, isBlocked, handleExplosionTile);
+        if (player2Balloons)
+            player2Balloons->update(0.f, isBlocked, handleExplosionTile);
+    }
 
     Player* players[] = { &player1, &player2 };
     for (int index = 0; index < 2; ++index)
@@ -888,20 +928,30 @@ void Game::renderCharacterSelect()
         }
         window.draw(cardBody);
 
-        const Vector2u textureSize = characterTextures[index].getSize();
+        const bool useSecondPlayerPalette = isPlayer1 && isPlayer2;
+        const Texture& previewTexture = useSecondPlayerPalette
+            ? secondPlayerCharacterTextures[index]
+            : characterTextures[index];
+        const Vector2u textureSize = previewTexture.getSize();
         const int frameWidth = static_cast<int>(textureSize.x) / 4;
         const int frameHeight = static_cast<int>(textureSize.y) / 4;
         if (frameWidth <= 0 || frameHeight <= 0)
             continue;
 
-        Sprite character(characterTextures[index]);
+        Sprite character(previewTexture);
         character.setTextureRect(IntRect({ 0, 0 }, { frameWidth, frameHeight }));
         character.setOrigin({ frameWidth / 2.f, frameHeight / 2.f });
-        const float imageSize = (isPlayer1 || isPlayer2) ? 69.f : 62.f;
-        const float scale = imageSize / static_cast<float>(frameHeight);
-        character.setScale({ scale, scale });
-        character.setPosition({ centerX,cardY - 12.f });
-        window.draw(character);
+		const float imageSize = (isPlayer1 || isPlayer2) ? 69.f : 62.f;
+		const float scale = imageSize / static_cast<float>(frameHeight);
+		character.setScale({ scale, scale });
+		float previewOffsetX = 0.f;
+		if (index == 0)
+			previewOffsetX = 54.5f;
+		else if (index == 5)
+			previewOffsetX = 43.5f;
+
+		character.setPosition({ centerX - previewOffsetX * scale, cardY - 12.f });
+		window.draw(character);
 
         Color platformTop(70, 74, 100);
         Color platformFront(34, 37, 60);

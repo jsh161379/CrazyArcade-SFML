@@ -9,6 +9,7 @@ constexpr int PlayerFrameCount = 4;
 struct Player
 {
     int playerNumber = 1;
+    int characterIndex = -1;
 
     int row = 1;
     int col = 1;
@@ -17,7 +18,7 @@ struct Player
 
     bool moving = false;
     float progress = 0.f;
-    float speed = 4.f;
+    float speed = 3.f;
 
     bool alive = true;
     bool trapped = false;
@@ -43,7 +44,7 @@ struct Player
     bool textureLoaded = false;
     float drawSize = 36.f;
 
-    bool loadTexture(const std::string& path);
+    bool loadTexture(const std::string& path, bool useSecondPlayerPalette = false);
     void draw(sf::RenderWindow& window) const;
 
     bool trapBursting = false;
@@ -52,6 +53,7 @@ struct Player
 };
 
 int dirRow(const std::string& dir);
+void applySecondPlayerPalette(sf::Image& image, int characterIndex);
 void resetPlayer(Player& player, int row, int col);
 void updatePlayer(Player& player, TileMap& map, float deltaTime, const std::function<bool(sf::Vector2i)>& isBalloonAt = {});
 sf::Vector2f getRenderPos(const Player& player);
