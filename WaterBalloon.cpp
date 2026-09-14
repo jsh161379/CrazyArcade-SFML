@@ -68,6 +68,15 @@ public:
         return m_elapsedSeconds >= FuseSeconds;
     }
 
+    bool trigger()
+    {
+        if (isReadyToExplode())
+            return false;
+
+        m_elapsedSeconds = FuseSeconds;
+        return true;
+    }
+
 private:
     static constexpr int AnimationFrameCount = 10;
     static constexpr float SecondsPerFrame = 0.1f; // 초당 10프레임
@@ -193,6 +202,19 @@ public:
         return false;
     }
 
+    // 현재 물줄기에 닿은 대기 중인 물풍선의 타이머를 즉시 끝낸다.
+    // 하나라도 새로 점화했다면 true를 반환한다.
+    bool triggerBalloonsHitBy(const WaterBalloonSystem& source)
+    {
+        bool triggered = false;
+        for (WaterBalloon& balloon : m_balloons)
+        {
+            if (source.hasExplosionAt(balloon.tile()))
+                triggered = balloon.trigger() || triggered;
+        }
+        return triggered;
+    }
+
     // 캐릭터의 화면 좌표가 실제 피격 영역 안에 있는지 반환한다.
     // 피격 영역은 이미지보다 상하좌우 5픽셀씩 작다.
     bool hitsPoint(sf::Vector2f worldPosition) const
@@ -245,12 +267,14 @@ public:
     // onExplosionHit(tile): 폭발이 닿은 오브젝트 처리용 콜백
     // 차단 여부를 먼저 저장하므로 파괴 가능 상자를 콜백에서 제거해도
     // 그 타일에는 물줄기 이미지와 캐릭터 피격 판정이 생성되지 않는다.
-    void update(float deltaSeconds,
-                const std::function<bool(sf::Vector2i)>& isBlocked,
-                const std::function<void(sf::Vector2i)>& onExplosionHit)
+    int update(float deltaSeconds,
+               const std::function<bool(sf::Vector2i)>& isBlocked,
+               const std::function<void(sf::Vector2i)>& onExplosionHit)
     {
         if (!m_loaded)
-            return;
+            return 0;
+
+        int explodedBalloonCount = 0;
 
         for (Explosion& explosion : m_explosions)
             explosion.elapsedSeconds += deltaSeconds;
@@ -300,6 +324,7 @@ public:
             }
 
             m_explosions.push_back(explosion);
+            ++explodedBalloonCount;
         }
 
         m_balloons.erase(
@@ -309,6 +334,8 @@ public:
                                return balloon.isReadyToExplode();
                            }),
             m_balloons.end());
+
+        return explodedBalloonCount;
     }
 
     void drawBalloons(sf::RenderTarget& target)

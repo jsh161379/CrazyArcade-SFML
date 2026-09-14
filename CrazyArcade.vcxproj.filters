@@ -24,6 +24,18 @@
     <ClCompile Include="TileMap.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Item.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="UI.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="TileArt.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
@@ -32,24 +44,30 @@
     <ClInclude Include="TileMap.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Item.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="UI.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="TileArt.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="WaterBalloon.cpp">
-      <Filter>소스 파일</Filter>
+    <None Include="WaterBalloon.cpp" />
+    <None Include=".editorconfig" />
+    <None Include="pop.mp3">
+      <Filter>리소스 파일</Filter>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="assets\water_balloon_animation\water_balloon_sheet_10fps.png">
+    <None Include="vilagebgm.mp3">
       <Filter>리소스 파일</Filter>
-    </Image>
-    <Image Include="assets\water_balloon_animation\water_body.png">
+    </None>
+    <None Include="waterBalloon.mp3">
       <Filter>리소스 파일</Filter>
-    </Image>
-    <Image Include="assets\water_balloon_animation\water_center.png">
-      <Filter>리소스 파일</Filter>
-    </Image>
-    <Image Include="assets\water_balloon_animation\water_end.png">
-      <Filter>리소스 파일</Filter>
-    </Image>
+    </None>
   </ItemGroup>
 </Project>

@@ -1,11 +1,20 @@
 #pragma once
 
+#include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
+#include <array>
+#include <memory>
+#include "Item.h"
+#include "Player.h"
 #include "TileMap.h"
+#include "UI.h"
+
+class WaterBalloonSystem;
 
 enum class GameState
 {
     Start,
+    CharacterSelect,
     Playing,
     GameOver
 };
@@ -13,11 +22,11 @@ enum class GameState
 class Game
 {
 private:
-    // °ÔÀÓ È­¸é Å©±â
+    // ê²Œì„ í™”ë©´ í¬ê¸°
     static constexpr unsigned int WINDOW_WIDTH = 800;
     static constexpr unsigned int WINDOW_HEIGHT = 600;
 
-    // ¸Ê Á¤º¸
+    // ë§µ ì„¤ì •
     static constexpr int MAP_COLS = 15;
     static constexpr int MAP_ROWS = 13;
     static constexpr float TILE_SIZE = 40.f;
@@ -26,9 +35,19 @@ private:
     GameState state;
     sf::Clock clock;
 
+    // ê²Œì„ ìŒí–¥
+    sf::SoundBuffer waterBalloonSoundBuffer;
+    sf::SoundBuffer popSoundBuffer;
+    sf::Sound waterBalloonSound;
+    sf::Sound popSound;
+    sf::Music villageBgm;
+    bool waterBalloonSoundLoaded = false;
+    bool popSoundLoaded = false;
+    bool villageBgmLoaded = false;
+
     sf::Font font;
 
-    // Start È­¸é
+    // ì‹œì‘ í™”ë©´
     sf::Texture startBackgroundTexture;
     sf::Sprite startBackground;
 
@@ -36,18 +55,41 @@ private:
     sf::RectangleShape startButton;
     sf::Text startText;
 
-    // Playing È­¸é
+    // ìºë¦­í„° ì„ íƒ í™”ë©´
+    static constexpr int CharacterCount = 6;
+    std::array<sf::Texture, CharacterCount> characterTextures;
+    std::array<sf::Texture, CharacterCount> secondPlayerCharacterTextures;
+    int selectedCharacterP1;
+    int selectedCharacterP2;
+    bool player1Confirmed;
+    bool player2Confirmed;
+
+    sf::Text selectTitleText;
+    sf::Text player1HintText;
+    sf::Text player2HintText;
+
+    // ê²Œì„ ì§„í–‰ í™”ë©´
     TileMap tileMap;
     sf::RectangleShape uiArea;
+    Player player1;
+    Player player2;
+    std::unique_ptr<WaterBalloonSystem> player1Balloons;
+    std::unique_ptr<WaterBalloonSystem> player2Balloons;
 
-    // ½ÂÀÚ Á¤º¸
+    ItemManager itemManager;
+    std::array<ItemStats, 2> itemStats;
+    std::array<float, 2> trappedSeconds{};
+    UI hud;
+    float secondsRemaining;
+
+    // ìŠ¹ì ì •ë³´
     int winner;
 
-    // GameOver È­¸é ¹è°æ
+    // ê²Œì„ ì¢…ë£Œ í™”ë©´ ë°°ê²½
     sf::Texture resultBackgroundTexture;
     sf::Sprite resultBackground;
 
-    // °á°ú È­¸é ¹İÅõ¸í ÆĞ³Î
+    // ê²°ê³¼ í™”ë©´ ë°˜íˆ¬ëª… íŒ¨ë„
     sf::RectangleShape resultPanel;
 
     sf::Text winnerText;
@@ -63,6 +105,16 @@ private:
     void render();
     void resetGame();
     void setWinner(int playerNumber);
+    void beginCharacterSelect();
+    void beginPlaying();
+    void renderCharacterSelect();
+    void createWaterBalloonSystems();
+    void placeWaterBalloon(int playerIndex);
+    void updateWaterBalloons(float deltaTime);
+    void updateItems();
+    void syncPlayerStats(int playerIndex);
+    void checkGameResult();
+    [[nodiscard]] sf::FloatRect getPlayerBounds(const Player& player) const;
 
     void centerTextOnButton(
         sf::Text& text,
@@ -71,8 +123,18 @@ private:
     void centerTextX(
         sf::Text& text,
         float y);
+    // ê²°ê³¼í™”ë©´ ì§€ì—°ìš©
+    bool waitingForGameOver = false;
+    float gameOverDelayTimer = 0.f;
+    int pendingWinner = 0;
+    static constexpr float GameOverDelay = 0.8f;
 
+    bool waitingForResultClick = false;
+    int loser = 0;
+
+    float bushShakeTimer = 0.f;
 public:
     Game();
+    ~Game();
     void run();
 };
