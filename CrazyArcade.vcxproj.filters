@@ -60,5 +60,14 @@
   <ItemGroup>
     <None Include="WaterBalloon.cpp" />
     <None Include=".editorconfig" />
+    <None Include="pop.mp3">
+      <Filter>리소스 파일</Filter>
+    </None>
+    <None Include="vilagebgm.mp3">
+      <Filter>리소스 파일</Filter>
+    </None>
+    <None Include="waterBalloon.mp3">
+      <Filter>리소스 파일</Filter>
+    </None>
   </ItemGroup>
 </Project>

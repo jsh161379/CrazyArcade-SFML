@@ -113,7 +113,10 @@
       <AdditionalDependencies>sfml-graphics-d.lib;sfml-window-d.lib;sfml-system-d.lib;sfml-audio-d.lib;sfml-network-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /E /I /Y "$(ProjectDir)assets\*" "$(OutDir)assets\"</Command>
+      <Command>xcopy /E /I /Y "$(ProjectDir)assets\*" "$(OutDir)assets\"
+copy /Y "$(ProjectDir)waterBalloon.mp3" "$(OutDir)waterBalloon.mp3"
+copy /Y "$(ProjectDir)pop.mp3" "$(OutDir)pop.mp3"
+copy /Y "$(ProjectDir)vilagebgm.mp3" "$(OutDir)vilagebgm.mp3"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -150,6 +153,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
+    <None Include="pop.mp3" />
+    <None Include="vilagebgm.mp3" />
+    <None Include="waterBalloon.mp3" />
     <None Include="WaterBalloon.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

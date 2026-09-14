@@ -1,5 +1,6 @@
 #pragma once
 
+#include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
 #include <array>
 #include <memory>
@@ -33,6 +34,16 @@ private:
     sf::RenderWindow window;
     GameState state;
     sf::Clock clock;
+
+    // 게임 음향
+    sf::SoundBuffer waterBalloonSoundBuffer;
+    sf::SoundBuffer popSoundBuffer;
+    sf::Sound waterBalloonSound;
+    sf::Sound popSound;
+    sf::Music villageBgm;
+    bool waterBalloonSoundLoaded = false;
+    bool popSoundLoaded = false;
+    bool villageBgmLoaded = false;
 
     sf::Font font;
 

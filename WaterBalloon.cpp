@@ -267,12 +267,14 @@ public:
     // onExplosionHit(tile): 폭발이 닿은 오브젝트 처리용 콜백
     // 차단 여부를 먼저 저장하므로 파괴 가능 상자를 콜백에서 제거해도
     // 그 타일에는 물줄기 이미지와 캐릭터 피격 판정이 생성되지 않는다.
-    void update(float deltaSeconds,
-                const std::function<bool(sf::Vector2i)>& isBlocked,
-                const std::function<void(sf::Vector2i)>& onExplosionHit)
+    int update(float deltaSeconds,
+               const std::function<bool(sf::Vector2i)>& isBlocked,
+               const std::function<void(sf::Vector2i)>& onExplosionHit)
     {
         if (!m_loaded)
-            return;
+            return 0;
+
+        int explodedBalloonCount = 0;
 
         for (Explosion& explosion : m_explosions)
             explosion.elapsedSeconds += deltaSeconds;
@@ -322,6 +324,7 @@ public:
             }
 
             m_explosions.push_back(explosion);
+            ++explodedBalloonCount;
         }
 
         m_balloons.erase(
@@ -331,6 +334,8 @@ public:
                                return balloon.isReadyToExplode();
                            }),
             m_balloons.end());
+
+        return explodedBalloonCount;
     }
 
     void drawBalloons(sf::RenderTarget& target)

@@ -11,6 +11,8 @@ using namespace std;
 Game::Game()
     : window(VideoMode({ WINDOW_WIDTH, WINDOW_HEIGHT }), "CrazyArcade"),
     state(GameState::Start),
+    waterBalloonSound(waterBalloonSoundBuffer),
+    popSound(popSoundBuffer),
     selectedCharacterP1(0),
     selectedCharacterP2(1),
     player1Confirmed(false),
@@ -28,6 +30,23 @@ Game::Game()
     exitText(font)
 {
     window.setFramerateLimit(60);
+
+    // 효과음은 메모리에 올려 짧게 재생하고, 배경음악은 파일에서 스트리밍한다.
+    waterBalloonSoundLoaded = waterBalloonSoundBuffer.loadFromFile("waterBalloon.mp3");
+    popSoundLoaded = popSoundBuffer.loadFromFile("pop.mp3");
+    villageBgmLoaded = villageBgm.openFromFile("vilagebgm.mp3");
+
+    if (!waterBalloonSoundLoaded)
+        cout << "waterBalloon.mp3 load failed!" << endl;
+    if (!popSoundLoaded)
+        cout << "pop.mp3 load failed!" << endl;
+    if (!villageBgmLoaded)
+        cout << "vilagebgm.mp3 load failed!" << endl;
+
+    waterBalloonSound.setVolume(80.f);
+    popSound.setVolume(80.f);
+    villageBgm.setVolume(45.f);
+    villageBgm.setLooping(true);
 
     // -----------------------------
     // 폰트
@@ -433,6 +452,8 @@ void Game::update(float deltaTime)
             if (player1.trapBurstTimer >= Player::TrapBurstDuration)
             {
                 player1.trapBursting = false;
+                if (popSoundLoaded)
+                    popSound.play();
                 killPlayer(player1);
             }
         }
@@ -444,6 +465,8 @@ void Game::update(float deltaTime)
             if (player2.trapBurstTimer >= Player::TrapBurstDuration)
             {
                 player2.trapBursting = false;
+                if (popSoundLoaded)
+                    popSound.play();
                 killPlayer(player2);
             }
         }
@@ -614,6 +637,12 @@ void Game::resetGame()
     waitingForGameOver = false;
     gameOverDelayTimer = 0.f;
     pendingWinner = 0;
+
+    if (villageBgmLoaded)
+    {
+        villageBgm.stop();
+        villageBgm.play();
+    }
 }
 
 void Game::beginCharacterSelect()
@@ -674,6 +703,8 @@ void Game::placeWaterBalloon(int playerIndex)
 
 void Game::updateWaterBalloons(float deltaTime)
 {
+    int explodedBalloonCount = 0;
+
     auto isBlocked = [this](Vector2i tile)
         {
             return tileMap.getTile(tile.x, tile.y) != TileType::Empty;
@@ -692,9 +723,9 @@ void Game::updateWaterBalloons(float deltaTime)
         };
 
     if (player1Balloons)
-        player1Balloons->update(deltaTime, isBlocked, handleExplosionTile);
+        explodedBalloonCount += player1Balloons->update(deltaTime, isBlocked, handleExplosionTile);
     if (player2Balloons)
-        player2Balloons->update(deltaTime, isBlocked, handleExplosionTile);
+        explodedBalloonCount += player2Balloons->update(deltaTime, isBlocked, handleExplosionTile);
 
     // 새로 생긴 물줄기에 닿은 모든 물풍선을 같은 프레임에 연쇄 폭발시킨다.
     // 한 번의 반복마다 다음 물풍선까지 물줄기가 이어지므로 설치 가능한
@@ -720,10 +751,14 @@ void Game::updateWaterBalloons(float deltaTime)
             break;
 
         if (player1Balloons)
-            player1Balloons->update(0.f, isBlocked, handleExplosionTile);
+            explodedBalloonCount += player1Balloons->update(0.f, isBlocked, handleExplosionTile);
         if (player2Balloons)
-            player2Balloons->update(0.f, isBlocked, handleExplosionTile);
+            explodedBalloonCount += player2Balloons->update(0.f, isBlocked, handleExplosionTile);
     }
+
+    // 같은 프레임의 연쇄 폭발은 효과음을 한 번만 재생해 소리 중첩을 막는다.
+    if (explodedBalloonCount > 0 && waterBalloonSoundLoaded)
+        waterBalloonSound.play();
 
     Player* players[] = { &player1, &player2 };
     for (int index = 0; index < 2; ++index)
@@ -1063,6 +1098,9 @@ void Game::centerTextX(Text& text, float y)
 void Game::setWinner(int playerNumber)
 {
     winner = playerNumber;
+
+    if (villageBgmLoaded)
+        villageBgm.stop();
 
     if (winner == 1)
     {
