@@ -21,7 +21,7 @@ struct ItemStats
 {
     int bombCapacity = 1;
     int blastRange = 1;
-    float speed = 160.f;
+    float speed = 120.f;
     int needles = 0;
 };
 struct ItemLimits
