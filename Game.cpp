@@ -1,4 +1,4 @@
-#include "Game.h"
+﻿#include "Game.h"
 #include "WaterBalloon.cpp"
 #include <algorithm>
 #include <iostream>
@@ -20,6 +20,7 @@ Game::Game()
     startBackground(startBackgroundTexture),
     resultBackground(resultBackgroundTexture),
     startText(font),
+    startExitText(font),
     selectTitleText(font),
     player1HintText(font),
     player2HintText(font),
@@ -147,20 +148,38 @@ Game::Game()
     // -----------------------------
     // 게임 시작 버튼
     // -----------------------------
-    startButton.setSize({ 240.f, 70.f });
+    startButton.setSize({ 240.f, 60.f });
     float startButtonX = (windowWidth - startButton.getSize().x) / 2.f;
-    startButton.setPosition({ startButtonX, 420.f });
+    startButton.setPosition({ startButtonX, 390.f });
     startButton.setFillColor(Color(30, 130, 230));
     startButton.setOutlineColor(Color::White);
     startButton.setOutlineThickness(4.f);
 
     startButtonShadow.setSize(startButton.getSize());
-    startButtonShadow.setPosition({ startButtonX, startButton.getPosition().y + 8.f });
+    startButtonShadow.setPosition({ startButtonX, startButton.getPosition().y + 7.f });
     startButtonShadow.setFillColor(Color(0, 70, 150));
 
     startText.setString(sf::String(U"게임 시작"));
-    startText.setCharacterSize(36);
+    startText.setCharacterSize(32);
     centerTextOnButton(startText, startButton);
+
+    // -----------------------------
+    // 게임 종료 버튼
+    // -----------------------------
+    startExitButton.setSize({ 240.f, 60.f });
+    float startExitButtonX = (windowWidth - startExitButton.getSize().x) / 2.f;
+    startExitButton.setPosition({ startExitButtonX, 470.f });
+    startExitButton.setFillColor(Color(200, 70, 70));
+    startExitButton.setOutlineColor(Color::White);
+    startExitButton.setOutlineThickness(4.f);
+
+    startExitButtonShadow.setSize(startExitButton.getSize());
+    startExitButtonShadow.setPosition({ startExitButtonX, startExitButton.getPosition().y + 7.f });
+    startExitButtonShadow.setFillColor(Color(130, 35, 35));
+
+    startExitText.setString(sf::String(U"게임 종료"));
+    startExitText.setCharacterSize(32);
+    centerTextOnButton(startExitText, startExitButton);
 
     // -----------------------------
     // Playing 임시 화면
@@ -266,11 +285,13 @@ void Game::processEvents()
                 {
                     if (startButton.getGlobalBounds().contains(mousePosition))
                         beginCharacterSelect();
+                    else if (startExitButton.getGlobalBounds().contains(mousePosition))
+                        window.close();
                 }
                 else if (state == GameState::GameOver)
                 {
                     if (restartButton.getGlobalBounds().contains(mousePosition))
-                        resetGame();
+                        beginCharacterSelect();
                     else if (exitButton.getGlobalBounds().contains(mousePosition))
                         window.close();
                 }
@@ -492,9 +513,14 @@ void Game::render()
     {
         window.clear();
         window.draw(startBackground);
+
         window.draw(startButtonShadow);
         window.draw(startButton);
         window.draw(startText);
+
+        window.draw(startExitButtonShadow);
+        window.draw(startExitButton);
+        window.draw(startExitText);
     }
     else if (state == GameState::CharacterSelect)
     {
@@ -552,9 +578,8 @@ void Game::render()
 
             FloatRect bounds = loseText.getLocalBounds();
             loseText.setPosition({
-                WINDOW_WIDTH / 2.f - bounds.position.x - bounds.size.x / 2.f,
-                WINDOW_HEIGHT / 2.f - bounds.position.y - bounds.size.y / 2.f - 20.f
-                });
+                TileMap::OriginX + TileMap::PixelWidth / 2.f - bounds.position.x - bounds.size.x / 2.f,
+                TileMap::OriginY + TileMap::PixelHeight / 2.f - bounds.position.y - bounds.size.y / 2.f - 20.f });
             window.draw(loseText);
 
             Text clickText(font, sf::String(U"마우스를 클릭하세요"), 20);
@@ -562,9 +587,8 @@ void Game::render()
 
             bounds = clickText.getLocalBounds();
             clickText.setPosition({
-                WINDOW_WIDTH / 2.f - bounds.position.x - bounds.size.x / 2.f,
-                WINDOW_HEIGHT / 2.f + 65.f
-                });
+                TileMap::OriginX + TileMap::PixelWidth / 2.f - bounds.position.x - bounds.size.x / 2.f,
+                TileMap::OriginY + TileMap::PixelHeight / 2.f + 65.f });
             window.draw(clickText);
         }
     }

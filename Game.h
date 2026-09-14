@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <SFML/Graphics.hpp>
 #include <array>
@@ -43,6 +43,10 @@ private:
     sf::RectangleShape startButtonShadow;
     sf::RectangleShape startButton;
     sf::Text startText;
+
+    sf::RectangleShape startExitButtonShadow;
+    sf::RectangleShape startExitButton;
+    sf::Text startExitText;
 
     // 캐릭터 선택 화면
     static constexpr int CharacterCount = 6;
