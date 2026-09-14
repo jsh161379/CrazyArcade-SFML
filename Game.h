@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <SFML/Graphics.hpp>
 #include <array>
@@ -111,7 +111,16 @@ private:
     void centerTextX(
         sf::Text& text,
         float y);
+    // 결과화면 지연용
+    bool waitingForGameOver = false;
+    float gameOverDelayTimer = 0.f;
+    int pendingWinner = 0;
+    static constexpr float GameOverDelay = 0.8f;
 
+    bool waitingForResultClick = false;
+    int loser = 0;
+
+    float bushShakeTimer = 0.f;
 public:
     Game();
     ~Game();

@@ -1,8 +1,9 @@
-﻿#include "Game.h"
+#include "Game.h"
 #include "WaterBalloon.cpp"
 #include <algorithm>
 #include <iostream>
 #include <string>
+#include <cmath>
 
 using namespace sf;
 using namespace std;
@@ -255,23 +256,23 @@ void Game::processEvents()
             {
                 Vector2f mousePosition(mousePressed->position);
 
+                if (state == GameState::Playing && waitingForResultClick)
+                {
+                    state = GameState::GameOver;
+                    continue;
+                }
+
                 if (state == GameState::Start)
                 {
                     if (startButton.getGlobalBounds().contains(mousePosition))
-                    {
                         beginCharacterSelect();
-                    }
                 }
                 else if (state == GameState::GameOver)
                 {
                     if (restartButton.getGlobalBounds().contains(mousePosition))
-                    {
                         resetGame();
-                    }
                     else if (exitButton.getGlobalBounds().contains(mousePosition))
-                    {
                         window.close();
-                    }
                 }
             }
         }
@@ -372,8 +373,71 @@ void Game::update(float deltaTime)
     }
     else if (state == GameState::Playing)
     {
-        updatePlayer(player1, tileMap, deltaTime);
-        updatePlayer(player2, tileMap, deltaTime);
+        if (waitingForResultClick) return;
+        bushShakeTimer += deltaTime;
+        updatePlayer(player1, tileMap, deltaTime, [&](sf::Vector2i tile)
+            {
+                bool blocked = false;
+                if (player1Balloons) blocked = blocked || player1Balloons->hasBalloonAt(tile);
+                if (player2Balloons) blocked = blocked || player2Balloons->hasBalloonAt(tile);
+                return blocked;
+            });
+
+        updatePlayer(player2, tileMap, deltaTime, [&](sf::Vector2i tile)
+            {
+                bool blocked = false;
+                if (player1Balloons) blocked = blocked || player1Balloons->hasBalloonAt(tile);
+                if (player2Balloons) blocked = blocked || player2Balloons->hasBalloonAt(tile);
+                return blocked;
+            });
+
+        sf::Vector2f p1Pos = getRenderPos(player1);
+        sf::Vector2f p2Pos = getRenderPos(player2);
+
+        float dx = p1Pos.x - p2Pos.x;
+        float dy = p1Pos.y - p2Pos.y;
+        float distance = std::sqrt(dx * dx + dy * dy);
+
+        const float touchDistance = 25.f;
+
+        if (player1.alive && player2.alive && distance <= touchDistance)
+        {
+            if (player1.trapped && !player2.trapped && !player1.trapBursting)
+            {
+                player1.trapped = false;
+                player1.trapBursting = true;
+                player1.trapBurstTimer = 0.f;
+                trappedSeconds[0] = 0.f;
+            }
+            else if (player2.trapped && !player1.trapped && !player2.trapBursting)
+            {
+                player2.trapped = false;
+                player2.trapBursting = true;
+                player2.trapBurstTimer = 0.f;
+                trappedSeconds[1] = 0.f;
+            }
+        }
+        if (player1.trapBursting)
+        {
+            player1.trapBurstTimer += deltaTime;
+
+            if (player1.trapBurstTimer >= Player::TrapBurstDuration)
+            {
+                player1.trapBursting = false;
+                killPlayer(player1);
+            }
+        }
+
+        if (player2.trapBursting)
+        {
+            player2.trapBurstTimer += deltaTime;
+
+            if (player2.trapBurstTimer >= Player::TrapBurstDuration)
+            {
+                player2.trapBursting = false;
+                killPlayer(player2);
+            }
+        }
         updateWaterBalloons(deltaTime);
         updateItems();
 
@@ -385,8 +449,13 @@ void Game::update(float deltaTime)
             if (players[index]->alive && players[index]->trapped)
             {
                 trappedSeconds[index] += deltaTime;
-                if (trappedSeconds[index] >= 2.f)
-                    killPlayer(*players[index]);
+                if (trappedSeconds[index] >= Player::TrapDuration && !players[index]->trapBursting)
+                {
+                    players[index]->trapped = false;
+                    players[index]->trapBursting = true;
+                    players[index]->trapBurstTimer = 0.f;
+                    trappedSeconds[index] = 0.f;
+                }
             }
         }
 
@@ -443,9 +512,22 @@ void Game::render()
             player1Balloons->drawBalloons(window);
         if (player2Balloons)
             player2Balloons->drawBalloons(window);
+       
+        sf::Vector2i p1Tile = getTilePosition(player1);
+        sf::Vector2i p2Tile = getTilePosition(player2);
 
-        player1.draw(window);
-        player2.draw(window);
+        bool p1InBush = tileMap.getTile(p1Tile.x, p1Tile.y) == TileType::HideableBush;
+        bool p2InBush = tileMap.getTile(p2Tile.x, p2Tile.y) == TileType::HideableBush;
+
+        if (!p1InBush) player1.draw(window);
+        if (!p2InBush) player2.draw(window);
+        float shake = std::sin(bushShakeTimer * 14.f) * 3.f;
+
+        if (p1InBush)
+            tileMap.drawBushShake(window, p1Tile.x, p1Tile.y, shake);
+
+        if (p2InBush)
+            tileMap.drawBushShake(window, p2Tile.x, p2Tile.y, -shake);
 
         if (player1Balloons)
             player1Balloons->drawExplosions(window);
@@ -457,6 +539,34 @@ void Game::render()
             { itemStats[1], player2.alive, player2.trapped }
         } };
         hud.draw(window, players, secondsRemaining, "P1 SPACE/F   P2 ENTER/RCTRL");
+
+        if (waitingForResultClick)
+        {
+            RectangleShape dark({ static_cast<float>(WINDOW_WIDTH),static_cast<float>(WINDOW_HEIGHT) });
+            dark.setFillColor(Color(0, 0, 0, 110));
+            window.draw(dark);
+
+            Text loseText(font, loser == 1 ? "P1 LOSE" : loser == 2 ? "P2 LOSE" : "DRAW", 64);
+            loseText.setStyle(Text::Bold);
+            loseText.setFillColor(Color(255, 80, 80));
+
+            FloatRect bounds = loseText.getLocalBounds();
+            loseText.setPosition({
+                WINDOW_WIDTH / 2.f - bounds.position.x - bounds.size.x / 2.f,
+                WINDOW_HEIGHT / 2.f - bounds.position.y - bounds.size.y / 2.f - 20.f
+                });
+            window.draw(loseText);
+
+            Text clickText(font, sf::String(U"마우스를 클릭하세요"), 20);
+            clickText.setFillColor(Color::White);
+
+            bounds = clickText.getLocalBounds();
+            clickText.setPosition({
+                WINDOW_WIDTH / 2.f - bounds.position.x - bounds.size.x / 2.f,
+                WINDOW_HEIGHT / 2.f + 65.f
+                });
+            window.draw(clickText);
+        }
     }
     else if (state == GameState::GameOver)
     {
@@ -476,9 +586,13 @@ void Game::render()
 void Game::resetGame()
 {
     winner = 0;
+
+    waitingForResultClick = false;
+    loser = 0;
+
     tileMap.reset();
-    resetPlayer(player1, 1, 1);
-    resetPlayer(player2, TileMap::Rows - 2, TileMap::Columns - 2);
+    resetPlayer(player1, 1, 0);
+    resetPlayer(player2, 12, 14);
     itemManager.clear();
     itemStats = {};
     trappedSeconds = {};
@@ -487,6 +601,10 @@ void Game::resetGame()
     syncPlayerStats(0);
     syncPlayerStats(1);
     state = GameState::Playing;
+
+    waitingForGameOver = false;
+    gameOverDelayTimer = 0.f;
+    pendingWinner = 0;
 }
 
 void Game::beginCharacterSelect()
@@ -504,6 +622,8 @@ void Game::beginPlaying()
     const string player2Path = "assets/characters/char" + to_string(selectedCharacterP2 + 1) + ".png";
     player1.loadTexture(player1Path);
     player2.loadTexture(player2Path);
+    player1.playerNumber = 1;
+    player2.playerNumber = 2;
     resetGame();
 }
 
@@ -619,31 +739,33 @@ void Game::syncPlayerStats(int playerIndex)
     player.needles = stats.needles;
     player.speed = stats.speed / static_cast<float>(TileMap::TileSize);
 }
-
 void Game::checkGameResult()
 {
-    if (state != GameState::Playing)
-        return;
+    if (state != GameState::Playing || waitingForResultClick) return;
 
     if (!player1.alive && !player2.alive)
     {
         setWinner(0);
-        state = GameState::GameOver;
+        loser = 0;
+        waitingForResultClick = true;
     }
     else if (!player1.alive)
     {
         setWinner(2);
-        state = GameState::GameOver;
+        loser = 1;
+        waitingForResultClick = true;
     }
     else if (!player2.alive)
     {
         setWinner(1);
-        state = GameState::GameOver;
+        loser = 2;
+        waitingForResultClick = true;
     }
     else if (secondsRemaining <= 0.f)
     {
         setWinner(0);
-        state = GameState::GameOver;
+        loser = 0;
+        waitingForResultClick = true;
     }
 }
 
@@ -754,7 +876,7 @@ void Game::renderCharacterSelect()
         const float imageSize = (isPlayer1 || isPlayer2) ? 69.f : 62.f;
         const float scale = imageSize / static_cast<float>(frameHeight);
         character.setScale({ scale, scale });
-        character.setPosition({ centerX, cardY - 12.f });
+        character.setPosition({ centerX,cardY - 12.f });
         window.draw(character);
 
         Color platformTop(70, 74, 100);
