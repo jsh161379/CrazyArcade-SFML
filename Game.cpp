@@ -544,7 +544,7 @@ void Game::render()
             player1Balloons->drawBalloons(window);
         if (player2Balloons)
             player2Balloons->drawBalloons(window);
-       
+
         sf::Vector2i p1Tile = getTilePosition(player1);
         sf::Vector2i p2Tile = getTilePosition(player2);
 
