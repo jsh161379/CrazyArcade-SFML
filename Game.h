@@ -41,9 +41,11 @@ private:
     sf::Sound waterBalloonSound;
     sf::Sound popSound;
     sf::Music villageBgm;
+    sf::Music loginBgm;
     bool waterBalloonSoundLoaded = false;
     bool popSoundLoaded = false;
     bool villageBgmLoaded = false;
+    bool loginBgmLoaded = false;
 
     sf::Font font;
 
@@ -102,6 +104,7 @@ private:
 
     void processEvents();
     void update(float deltaTime);
+    void updateBackgroundMusic();
     void render();
     void resetGame();
     void setWinner(int playerNumber);

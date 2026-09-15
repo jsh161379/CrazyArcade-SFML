@@ -35,6 +35,7 @@ Game::Game()
     waterBalloonSoundLoaded = waterBalloonSoundBuffer.loadFromFile("waterBalloon.mp3");
     popSoundLoaded = popSoundBuffer.loadFromFile("pop.mp3");
     villageBgmLoaded = villageBgm.openFromFile("vilagebgm.mp3");
+    loginBgmLoaded = loginBgm.openFromFile("login.mp3");
 
     if (!waterBalloonSoundLoaded)
         cout << "waterBalloon.mp3 load failed!" << endl;
@@ -42,11 +43,15 @@ Game::Game()
         cout << "pop.mp3 load failed!" << endl;
     if (!villageBgmLoaded)
         cout << "vilagebgm.mp3 load failed!" << endl;
+    if (!loginBgmLoaded)
+        cout << "login.mp3 load failed!" << endl;
 
     waterBalloonSound.setVolume(80.f);
     popSound.setVolume(80.f);
     villageBgm.setVolume(45.f);
     villageBgm.setLooping(true);
+    loginBgm.setVolume(45.f);
+    loginBgm.setLooping(true);
 
     // -----------------------------
     // 폰트
@@ -265,6 +270,7 @@ void Game::run()
         deltaTime = std::min(deltaTime, 0.1f);
         processEvents();
         update(deltaTime);
+        updateBackgroundMusic();
         render();
     }
 }
@@ -638,10 +644,28 @@ void Game::resetGame()
     gameOverDelayTimer = 0.f;
     pendingWinner = 0;
 
-    if (villageBgmLoaded)
+}
+
+void Game::updateBackgroundMusic()
+{
+    // 맵 화면에서는 맵 음악, 그 외 화면에서는 로그인 음악을 반복 재생한다.
+    // 매 프레임 호출해도 재생 중인 음악은 다시 시작하지 않는다.
+    const bool showMap = window.isOpen() && state == GameState::Playing;
+    if (showMap)
     {
-        villageBgm.stop();
-        villageBgm.play();
+        if (loginBgm.getStatus() != SoundSource::Status::Stopped)
+            loginBgm.stop();
+        if (villageBgmLoaded && villageBgm.getStatus() != SoundSource::Status::Playing)
+            villageBgm.play();
+    }
+    else
+    {
+        if (villageBgm.getStatus() != SoundSource::Status::Stopped)
+            villageBgm.stop();
+        if (window.isOpen() && loginBgmLoaded && loginBgm.getStatus() != SoundSource::Status::Playing)
+            loginBgm.play();
+        else if (!window.isOpen())
+            loginBgm.stop();
     }
 }
 
@@ -1098,9 +1122,6 @@ void Game::centerTextX(Text& text, float y)
 void Game::setWinner(int playerNumber)
 {
     winner = playerNumber;
-
-    if (villageBgmLoaded)
-        villageBgm.stop();
 
     if (winner == 1)
     {

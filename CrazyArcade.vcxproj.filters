@@ -63,6 +63,9 @@
     <None Include="pop.mp3">
       <Filter>리소스 파일</Filter>
     </None>
+    <None Include="login.mp3">
+      <Filter>리소스 파일</Filter>
+    </None>
     <None Include="vilagebgm.mp3">
       <Filter>리소스 파일</Filter>
     </None>

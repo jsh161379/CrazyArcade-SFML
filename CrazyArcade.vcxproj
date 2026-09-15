@@ -116,7 +116,8 @@
       <Command>xcopy /E /I /Y "$(ProjectDir)assets\*" "$(OutDir)assets\"
 copy /Y "$(ProjectDir)waterBalloon.mp3" "$(OutDir)waterBalloon.mp3"
 copy /Y "$(ProjectDir)pop.mp3" "$(OutDir)pop.mp3"
-copy /Y "$(ProjectDir)vilagebgm.mp3" "$(OutDir)vilagebgm.mp3"</Command>
+copy /Y "$(ProjectDir)vilagebgm.mp3" "$(OutDir)vilagebgm.mp3"
+copy /Y "$(ProjectDir)login.mp3" "$(OutDir)login.mp3"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -154,6 +155,7 @@ copy /Y "$(ProjectDir)vilagebgm.mp3" "$(OutDir)vilagebgm.mp3"</Command>
   <ItemGroup>
     <None Include=".editorconfig" />
     <None Include="pop.mp3" />
+    <None Include="login.mp3" />
     <None Include="vilagebgm.mp3" />
     <None Include="waterBalloon.mp3" />
     <None Include="WaterBalloon.cpp" />
