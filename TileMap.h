@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "TileArt.h"
 #include <SFML/Graphics/Texture.hpp>

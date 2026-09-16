@@ -1,4 +1,4 @@
-﻿#include "TileMap.h"
+#include "TileMap.h"
 #include <SFML/Graphics/Sprite.hpp>
 #include <string_view>
 #include <utility>

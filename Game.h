@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
 #include <array>
 #include <memory>
@@ -34,6 +35,18 @@ private:
     GameState state;
     sf::Clock clock;
 
+    // 게임 음향
+    sf::SoundBuffer waterBalloonSoundBuffer;
+    sf::SoundBuffer popSoundBuffer;
+    sf::Sound waterBalloonSound;
+    sf::Sound popSound;
+    sf::Music villageBgm;
+    sf::Music loginBgm;
+    bool waterBalloonSoundLoaded = false;
+    bool popSoundLoaded = false;
+    bool villageBgmLoaded = false;
+    bool loginBgmLoaded = false;
+
     sf::Font font;
 
     // 시작 화면
@@ -44,9 +57,14 @@ private:
     sf::RectangleShape startButton;
     sf::Text startText;
 
+    sf::RectangleShape startExitButtonShadow;
+    sf::RectangleShape startExitButton;
+    sf::Text startExitText;
+
     // 캐릭터 선택 화면
     static constexpr int CharacterCount = 6;
     std::array<sf::Texture, CharacterCount> characterTextures;
+    std::array<sf::Texture, CharacterCount> secondPlayerCharacterTextures;
     int selectedCharacterP1;
     int selectedCharacterP2;
     bool player1Confirmed;
@@ -90,6 +108,7 @@ private:
 
     void processEvents();
     void update(float deltaTime);
+    void updateBackgroundMusic();
     void render();
     void resetGame();
     void setWinner(int playerNumber);
@@ -111,6 +130,7 @@ private:
     void centerTextX(
         sf::Text& text,
         float y);
+
     // 결과화면 지연용
     bool waitingForGameOver = false;
     float gameOverDelayTimer = 0.f;
@@ -121,6 +141,7 @@ private:
     int loser = 0;
 
     float bushShakeTimer = 0.f;
+
 public:
     Game();
     ~Game();
