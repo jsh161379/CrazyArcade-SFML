@@ -381,24 +381,46 @@ void Game::update(float deltaTime)
 
         bushShakeTimer += deltaTime;
 
-        updatePlayer(player1, tileMap, deltaTime, [&](sf::Vector2i tile)
+        updatePlayer(player1, tileMap, deltaTime,
+            [&](sf::Vector2i tile)
             {
                 bool blocked = false;
-                if (player1Balloons)
-                    blocked = blocked || player1Balloons->hasBalloonAt(tile);
-                if (player2Balloons)
-                    blocked = blocked || player2Balloons->hasBalloonAt(tile);
+                if (player1Balloons) blocked = blocked || player1Balloons->hasBalloonAt(tile);
+                if (player2Balloons) blocked = blocked || player2Balloons->hasBalloonAt(tile);
                 return blocked;
+            },
+            [&](sf::Vector2i tile)
+            {
+                if (player2.col == tile.x && player2.row == tile.y)
+                    return true;
+
+                if (player2.moving &&
+                    player2.targetCol == tile.x &&
+                    player2.targetRow == tile.y)
+                    return true;
+
+                return false;
             });
 
-        updatePlayer(player2, tileMap, deltaTime, [&](sf::Vector2i tile)
+        updatePlayer(player2, tileMap, deltaTime,
+            [&](sf::Vector2i tile)
             {
                 bool blocked = false;
-                if (player1Balloons)
-                    blocked = blocked || player1Balloons->hasBalloonAt(tile);
-                if (player2Balloons)
-                    blocked = blocked || player2Balloons->hasBalloonAt(tile);
+                if (player1Balloons) blocked = blocked || player1Balloons->hasBalloonAt(tile);
+                if (player2Balloons) blocked = blocked || player2Balloons->hasBalloonAt(tile);
                 return blocked;
+            },
+            [&](sf::Vector2i tile)
+            {
+                if (player1.col == tile.x && player1.row == tile.y)
+                    return true;
+
+                if (player1.moving &&
+                    player1.targetCol == tile.x &&
+                    player1.targetRow == tile.y)
+                    return true;
+
+                return false;
             });
 
         sf::Vector2f p1Pos = getRenderPos(player1);
@@ -561,7 +583,8 @@ void Game::render()
             { itemStats[1], player2.alive, player2.trapped }
         } };
 
-        hud.draw(window, players, secondsRemaining, "P1 SPACE/F   P2 ENTER/RCTRL");
+
+        hud.draw(window, players, secondsRemaining, "P1 SPACE / F\nP2 ENTER / RSHIFT");
 
         if (waitingForResultClick)
         {

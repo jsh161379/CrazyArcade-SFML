@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <SFML/Graphics.hpp>
 #include <string>
 #include <functional>
@@ -50,12 +50,19 @@ struct Player
     bool trapBursting = false;
     float trapBurstTimer = 0.f;
     static constexpr float TrapBurstDuration = 0.35f;
+
+    bool cratePushLocked = false;
 };
 
 int dirRow(const std::string& dir);
 void applySecondPlayerPalette(sf::Image& image, int characterIndex);
 void resetPlayer(Player& player, int row, int col);
-void updatePlayer(Player& player, TileMap& map, float deltaTime, const std::function<bool(sf::Vector2i)>& isBalloonAt = {});
+void updatePlayer(
+    Player& player,
+    TileMap& map,
+    float deltaTime,
+    const std::function<bool(sf::Vector2i)>& isBalloonAt = {},
+    const std::function<bool(sf::Vector2i)>& isPlayerAt = {});
 sf::Vector2f getRenderPos(const Player& player);
 sf::Vector2i getTilePosition(const Player& player);
 void killPlayer(Player& player);
